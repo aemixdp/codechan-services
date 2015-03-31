@@ -34,5 +34,8 @@ th { color: #383838; }
   -moz-box-sizing: border-box;
   text-align: center;
 }
-.msg { width: 25%; }
+.msg {
+  width: 25%;
+  word-break: break-all;
+}
 .zebra { background-color: #E6E6F5; }
