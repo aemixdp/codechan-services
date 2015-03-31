@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>codechan :: logservice</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="pikaday.min.css">
+</head>
+<body class="pure-form">
+  <h1><a href="https://codechan.slack.com/messages/general/">https://codechan.slack.com</a></h1>
+  <input id="from" type="text" placeholder="Start date" size="34">
+  <input id="to" type="text" placeholder="End date" size="34">
+  <input id="pw" type="text" placeholder="password" size="8">
+  <button class="pure-button pure-button-primary" onclick="show_logs()">Show logs</button>
+  <br><br>
+  <table>
+    <tbody id="results">
+      <tr>
+        <th>Date</th>
+        <th>User ID</th>
+        <th>Username</th>
+        <th>Channel ID</th>
+        <th>Channel name</th>
+        <th>Presence</th>
+        <th>Message</th>
+        <th>Changed timestamp</th>
+        <th>Deleted timestamp</th>
+        <th>Timestamp</th>
+      </tr>
+      <tr id="filters"></tr>
+    </tbody>
+  </table>
+  <script type="text/javascript" src="pikaday.min.js"></script>
+  <script type="text/javascript" src="index.js"></script>
+</body>
+</html>
