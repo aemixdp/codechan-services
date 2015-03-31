@@ -29,24 +29,22 @@ init_datetimepicker("to", 23, 59, 59, 999)
 filters_row = $("filters")
 results_table = $("results")
 filter_inputs = {}
+result_rows = []
 
 apply_filters = ->
   filters = {}
   for field, input of filter_inputs
     filters[field] = input.value
   zebra = true
-  for row in document.querySelectorAll(".results-row")
+  for row in result_rows
     match = true
-    for field in FIELDS
-      if row.querySelector(".#{field}").innerText.indexOf(filters[field]) == -1
+    for field, i in FIELDS
+      if row.children[i].textContent.indexOf(filters[field]) == -1
         match = false
-    if match && zebra
-      if row.className.indexOf("zebra") == -1
-        row.className += " zebra"
-    else
-      row.className = row.className.replace(" zebra", "").replace("zebra ", "")
-    zebra = !zebra if match
+    row.className = if match && zebra then "results-row" else "results-row zebra"
     row.style.display = if match then "table-row" else "none"
+    zebra = !zebra if match
+  return
 
 for field in FIELDS
   filters_row.insertAdjacentHTML "beforeend",
@@ -58,12 +56,15 @@ for field in FIELDS
 render_row = (msg_type, msg_data) ->
   ixmap = IXMAPS[msg_type]
   render_cell = (field) ->
-    content = (msg_data[ixmap[field]] || '-')
-      .replace(/&/g, "&amp;").replace(/"/g, "&#34;")
-      .replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    """<td class="#{field}">#{content}</td>"""
-  tds = FIELDS.map(render_cell).join("")
-  return """<tr class="results-row">#{tds}</tr>"""
+    td = document.createElement("td")
+    td.className = field
+    td.appendChild(document.createTextNode(msg_data[ixmap[field]] || '-'))
+    return td
+  tr = document.createElement("tr")
+  tr.className = "results-row"
+  for field in FIELDS
+    tr.appendChild(render_cell(field))
+  return tr
 
 format_date = (date) ->
   "#{date.getUTCDate()}.#{date.getUTCMonth() + 1}.#{date.getUTCFullYear()} " +
@@ -81,14 +82,17 @@ window.show_logs = ->
       when 403
         alert("Access denied!")
       when 200
-        for row in document.querySelectorAll(".results-row")
+        for row in result_rows
           row.parentNode.removeChild(row)
+        result_rows = []
         entries = JSON.parse(xhr.responseText)
         for i in [0...entries.length] by 2
           msg_data = JSON.parse(entries[i])
           msg_type = msg_data[0]
           msg_data[0] = format_date(new Date(parseInt(entries[i+1])))
-          results_table.insertAdjacentHTML "beforeend", render_row(msg_type, msg_data)
+          row = render_row(msg_type, msg_data)
+          results_table.appendChild(row)
+          result_rows.push(row)
         apply_filters()
       else
         alert("Unknown status: #{xhr.status}")
