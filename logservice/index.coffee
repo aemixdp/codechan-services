@@ -58,7 +58,10 @@ for field in FIELDS
 render_row = (msg_type, msg_data) ->
   ixmap = IXMAPS[msg_type]
   render_cell = (field) ->
-    """<td class="#{field}">#{msg_data[ixmap[field]] || '-'}</td>"""
+    content = (msg_data[ixmap[field]] || '-')
+      .replace(/&/g, "&amp;").replace(/"/g, "&#34;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    """<td class="#{field}">#{content}</td>"""
   tds = FIELDS.map(render_cell).join("")
   return """<tr class="results-row">#{tds}</tr>"""
 
