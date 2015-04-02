@@ -78,11 +78,10 @@ th {
 #pages {
   display: inline;
   list-style-type: none;
-  word-break: break-word;
 }
 
 #pages li {
-  display: inline;
+  display: inline-block;
   margin-right: 20px;
 }
 
