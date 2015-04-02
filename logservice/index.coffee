@@ -1,4 +1,4 @@
-FIELDS = ["date", "uid", "uname", "cid", "cname", "presence", "msg", "cts", "dts", "ts"]
+FIELDS = ["date", "uname", "cname", "presence", "msg", "cts", "dts", "ts"]
 IXMAPS =
   presence_change: { date: 0, uid: 1, uname: 2, presence: 3 }
   user_typing: { date: 0, uid: 1, uname: 2, cid: 3, cname: 4 }
@@ -7,10 +7,8 @@ IXMAPS =
   message_deleted: { date: 0, cid: 1, cname: 2, dts: 3, ts: 4 }
   message: { date: 0, uid: 1, uname: 2, cid: 3, cname: 4, msg: 5, ts: 6 }
 
-$ = (id) -> document.getElementById(id)
-
 init_datetimepicker = (id, h, m, s, ms) ->
-  elem = $(id)
+  elem = document.getElementById(id)
   new Pikaday
     field: elem,
     firstDay: 1,
@@ -26,32 +24,57 @@ init_datetimepicker = (id, h, m, s, ms) ->
 init_datetimepicker("from", 0, 0, 0, 0)
 init_datetimepicker("to", 23, 59, 59, 999)
 
-filters_row = $("filters")
-results_table = $("results")
+filters_row = document.getElementById("filters")
+results_table = document.getElementById("results")
+pages_list = document.getElementById("pages")
+
 filter_inputs = {}
 result_rows = []
+filtered_rows = []
+pages = {}
 
 apply_filters = ->
   filters = {}
   for field, input of filter_inputs
     filters[field] = input.value
-  zebra = true
-  for row in result_rows
-    match = true
+  filtered_rows = result_rows.filter (row) ->
     for field, i in FIELDS
       if row.children[i].textContent.indexOf(filters[field]) == -1
-        match = false
-    row.className = if match && zebra then "results-row" else "results-row zebra"
-    row.style.display = if match then "table-row" else "none"
-    zebra = !zebra if match
-  return
+        return false
+    return true
 
-for field in FIELDS
-  filters_row.insertAdjacentHTML "beforeend",
-    """<td class="#{field}"><input id="#{field}-filter" size="16" placeholder="no filter"></td>"""
-  filter_input = $("#{field}-filter")
-  filter_input.oninput = apply_filters
-  filter_inputs[field] = filter_input
+paginate = ->
+  pages = {}
+  count = Math.floor(filtered_rows.length / 50)
+  while li = pages_list.lastChild
+    pages_list.removeChild(li)
+  for i in [0..count]
+    offset = i * 50
+    pages[i] = filtered_rows.slice(offset, offset + 50)
+    li = document.createElement("li")
+    a = document.createElement('a')
+    a.id = "page-#{i}"
+    a.href = '#'
+    a.onclick = -> select_page(parseInt(@textContent))
+    a.textContent = i
+    a.className = "selected" if i == 0
+    li.appendChild(a)
+    pages_list.appendChild(li)
+
+select_page = (i) ->
+  fragment = document.createDocumentFragment()
+  for tr in pages[i]
+    fragment.appendChild(tr)
+  for row in document.querySelectorAll(".results-row")
+    row.parentNode.removeChild(row)
+  results_table.appendChild(fragment)
+  document.querySelector(".selected").className = ""
+  document.getElementById("page-#{i}").className = "selected"
+
+refresh = ->
+  apply_filters()
+  paginate()
+  select_page(0)
 
 render_row = (msg_type, msg_data) ->
   ixmap = IXMAPS[msg_type]
@@ -70,10 +93,10 @@ format_date = (date) ->
   "#{date.getUTCDate()}.#{date.getUTCMonth() + 1}.#{date.getUTCFullYear()} " +
   date.toLocaleTimeString()
 
-window.show_logs = ->
-  from = new Date($("from").value).getTime()
-  to = new Date($("to").value).getTime()
-  pw = $("pw").value
+window.show_period_log = ->
+  from = new Date(document.getElementById("from").value).getTime()
+  to = new Date(document.getElementById("to").value).getTime()
+  pw = document.getElementById("pw").value
   url = "http://logservice-codechan.rhcloud.com/messages?from=#{from}&to=#{to}&pw=#{pw}"
   xhr = new XMLHttpRequest()
   xhr.onreadystatechange = ->
@@ -82,8 +105,6 @@ window.show_logs = ->
       when 403
         alert("Access denied!")
       when 200
-        for row in result_rows
-          row.parentNode.removeChild(row)
         result_rows = []
         entries = JSON.parse(xhr.responseText)
         for i in [0...entries.length] by 2
@@ -93,8 +114,20 @@ window.show_logs = ->
           row = render_row(msg_type, msg_data)
           results_table.appendChild(row)
           result_rows.push(row)
-        apply_filters()
+        refresh()
       else
         alert("Unknown status: #{xhr.status}")
   xhr.open("GET", url, false)
   xhr.send()
+
+window.download_full_log = ->
+  pw = document.getElementById("pw").value
+  url = "http://logservice-codechan.rhcloud.com/fulldump?pw=#{pw}"
+  document.location = url
+
+for field in FIELDS
+  filters_row.insertAdjacentHTML "beforeend",
+    """<td class="#{field}"><input id="#{field}-filter" size="16" placeholder="no filter"></td>"""
+  filter_input = document.getElementById("#{field}-filter")
+  filter_input.oninput = refresh
+  filter_inputs[field] = filter_input

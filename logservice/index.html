@@ -11,16 +11,17 @@
   <h1><a href="https://codechan.slack.com/messages/general/">https://codechan.slack.com</a></h1>
   <input id="from" type="text" placeholder="Start date" size="34">
   <input id="to" type="text" placeholder="End date" size="34">
-  <input id="pw" type="text" placeholder="password" size="8">
-  <button class="pure-button pure-button-primary" onclick="show_logs()">Show logs</button>
+  <input id="pw" type="text" placeholder="pass" size="6">
+  <button id="period-log" class="pure-button pure-button-primary" onclick="show_period_log()">Show period log</button>
+  <button id="full-log" class="pure-button pure-button-primary" onclick="download_full_log()">Download full log</button>
+  <br><br>
+  <ul id="pages"></ul>
   <br><br>
   <table>
     <tbody id="results">
       <tr>
         <th>Date</th>
-        <th>User ID</th>
         <th>Username</th>
-        <th>Channel ID</th>
         <th>Channel name</th>
         <th>Presence</th>
         <th>Message</th>
