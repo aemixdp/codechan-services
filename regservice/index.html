@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>codechan :: regservice</title>
+  <style>
+    body { text-align: center; }
+    * { margin-bottom: 3px !important; }
+    a, a:visited, a:hover, a:active { color: #4D4D4D; }
+    input {
+      -webkit-transition: all 0.30s ease-in-out;
+      -moz-transition: all 0.30s ease-in-out;
+      -ms-transition: all 0.30s ease-in-out;
+      -o-transition: all 0.30s ease-in-out;
+      outline: none;
+      padding: 8px 10px;
+      border: 1px solid #DDDDDD;
+      box-sizing: border-box;
+      margin-right: 4px;
+    }
+    input:focus {
+      box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+      border: 1px solid rgba(81, 203, 238, 1);
+    }
+    input:invalid:focus {
+      box-shadow: 0 0 5px red;
+      border: 1px solid red;
+    }
+    button {
+      border: 1px solid #DDDDDD;
+      padding: 8px 10px;
+      background-color: #0099CC;
+      color: #fff;
+    }
+    button:hover { cursor: pointer; }
+  </style>
+  <script>
+    function submit() {
+      var email = document.getElementById("email").value;
+      window.location.href = 'http://regservice-codechan.rhcloud.com/invite?email=' + encodeURI(email);
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      var new_width = document.getElementById("title").offsetWidth
+        - document.getElementById("submit").offsetWidth - 4;
+      document.getElementById("email").style.width = new_width + "px";
+    });
+  </script>
+</head>
+<body class="pure-form">
+  <h1><a id="title" href="https://codechan.slack.com/messages/general/">https://codechan.slack.com</a></h1>
+  <input id="email" type="email" placeholder="nyashka_milashka@gmail.com" size="34"><!--
+--><button id="submit" class="pure-button pure-button-primary" onclick="submit()">Get invite</button>
+</body>
+</html>

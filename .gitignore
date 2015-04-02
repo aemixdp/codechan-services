@@ -1,5 +1,8 @@
 */.openshift
+logservice/.git
 logservice/*.js
 logservice/public/index.js
 logservice/public/pikaday*
+regservice/.git
+regservice/*.js
 update.sh
